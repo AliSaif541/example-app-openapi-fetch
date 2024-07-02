@@ -9,7 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test:ts": "tsc --noEmit",
-    "fetch-swagger": "tsx src/scripts/fetchingSchema.ts",
+    "fetch-swagger": "tsx src/scripts/fetchingSchema.ts && npx openapi-typescript src/Schema/swagger-*.json -o src/Schema/schema.ts",
     "swagger": "npm run build",
     "prepare": "husky"
   },

@@ -2,7 +2,6 @@ import fs from 'fs';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env.local
 dotenv.config({ path: '.env.local' });
 
 async function fetchSwagger() {
