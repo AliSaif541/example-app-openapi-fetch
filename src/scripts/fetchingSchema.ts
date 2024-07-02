@@ -1,7 +1,14 @@
 import fs from 'fs';
 import { google } from 'googleapis';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
 
 async function fetchSwagger() {
+  const branchName = process.env['BRANCH_NAME'];
+  const fileName = `swagger-${branchName}.json`;
+
   const auth = new google.auth.GoogleAuth({
     keyFile: './credentials.json',
     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
@@ -11,7 +18,7 @@ async function fetchSwagger() {
 
   try {
     const listResponse = await drive.files.list({
-      q: `name='swagger.json' and '1cRBjK_sBYiy1DtHhjC0nHXoG7tHol9zO' in parents and trashed=false`,
+      q: `name='${fileName}' and '1cRBjK_sBYiy1DtHhjC0nHXoG7tHol9zO' in parents and trashed=false`,
       fields: 'files(id, name)',
     });
 
@@ -19,7 +26,7 @@ async function fetchSwagger() {
     if (files && files.length > 0) {
       const fileId = files[0]?.id;
       if (fileId) {
-        const dest = fs.createWriteStream('./src/Schema/swagger.json');
+        const dest = fs.createWriteStream(`./src/Schema/${fileName}`);
 
         await drive.files.get(
           { fileId, alt: 'media' },
@@ -47,7 +54,7 @@ async function fetchSwagger() {
         console.error('File ID is undefined.');
       }
     } else {
-      console.log('No swagger.json file found.');
+      console.log(`No ${fileName} file found.`);
     }
   } catch (error) {
     console.error('Error fetching files:', error);
