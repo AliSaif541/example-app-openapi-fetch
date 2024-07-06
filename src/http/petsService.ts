@@ -1,21 +1,20 @@
-import createClient from "openapi-fetch";
-import type { paths } from "../Schema/schema.ts";
 import { IPet } from "../types/petTypes.tsx";
+import { createClient, type NormalizeOAS } from "fets";
+import { openapi } from "../Schema/schema.ts";
 
-const client = createClient<paths>({ baseUrl: "http://localhost:3020" });
+const BASE_URL = "http://localhost:3020";
+
+const client = createClient<NormalizeOAS<typeof openapi>>({
+  endpoint: "/",
+});
 
 export const getPets = async (): Promise<IPet[]> => {
-    try {
-        const { data, error } = await client.GET("/petsapp/pet");
-
-        if (error) {
-            console.error("Error fetching pets:", error);
-            throw new Error("Cannot Get");
-        }
-
-        return data as IPet[];
-    } catch (error) {
-        console.error("Cannot Get");
-        return [];
-    }
+  try {
+    const response = await client[`${BASE_URL}/petsapp/pet`].get();
+    const data = await response.json();
+    return data as IPet[];
+  } catch (error) {
+    console.error("Cannot Get");
+    return [];
+  }
 };

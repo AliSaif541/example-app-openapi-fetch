@@ -6,7 +6,8 @@ dotenv.config({ path: '.env.local' });
 
 async function fetchSwagger() {
   const branchName = process.env['BRANCH_NAME'];
-  const fileName = `swagger-${branchName}.json`;
+  const sourceFileName = `schema-${branchName}.ts`;
+  const destinationFileName = 'schema.ts';
 
   const auth = new google.auth.GoogleAuth({
     keyFile: './credentials.json',
@@ -17,7 +18,7 @@ async function fetchSwagger() {
 
   try {
     const listResponse = await drive.files.list({
-      q: `name='${fileName}' and '1cRBjK_sBYiy1DtHhjC0nHXoG7tHol9zO' in parents and trashed=false`,
+      q: `name='${sourceFileName}' and '1cRBjK_sBYiy1DtHhjC0nHXoG7tHol9zO' in parents and trashed=false`,
       fields: 'files(id, name)',
     });
 
@@ -25,7 +26,7 @@ async function fetchSwagger() {
     if (files && files.length > 0) {
       const fileId = files[0]?.id;
       if (fileId) {
-        const dest = fs.createWriteStream(`./src/Schema/${fileName}`);
+        const dest = fs.createWriteStream(`./src/Schema/${destinationFileName}`);
 
         await drive.files.get(
           { fileId, alt: 'media' },
@@ -53,7 +54,7 @@ async function fetchSwagger() {
         console.error('File ID is undefined.');
       }
     } else {
-      console.log(`No ${fileName} file found.`);
+      console.log(`No ${sourceFileName} file found.`);
     }
   } catch (error) {
     console.error('Error fetching files:', error);
