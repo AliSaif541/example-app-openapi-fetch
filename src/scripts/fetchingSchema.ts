@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
-import semver from 'semver';
 
 dotenv.config({ path: '.env.local' });
 
@@ -12,9 +11,9 @@ interface GoogleDriveFile {
 
 async function fetchSwagger() {
   const branchName = process.env['BRANCH_NAME'];
-  const currentVersion = process.env['VERSION_NUMBER'];
+  const localHash = process.env['HASH_STRING'];
   const sourceFilePrefix = `schema-${branchName}`;
-  const destinationFileName = 'schema.ts';
+  const destinationFilePath = 'src/Schema/schema.ts';
 
   const auth = new google.auth.GoogleAuth({
     keyFile: './credentials.json',
@@ -30,30 +29,27 @@ async function fetchSwagger() {
     });
 
     const files = listResponse.data.files as GoogleDriveFile[] | undefined;
-    console.log("files: ", files);
 
     if (files && files.length > 0) {
-      const versionPattern = new RegExp(`${sourceFilePrefix}-(\\d+\\.\\d+\\.\\d+)\\.ts`);
       let latestFile: GoogleDriveFile | null = null;
-      let latestVersion = currentVersion || '0.0.0';
 
       for (const file of files) {
-        if (file.name) {
-          const match = file.name.match(versionPattern);
-          if (match && match[1]) {
-            const fileVersion = match[1];
-            if (semver.gt(fileVersion, latestVersion)) {
-              latestVersion = fileVersion;
-              latestFile = file;
-              console.log("latest file: ", latestFile);
-              console.log("latest version: ", latestVersion);
-            }
-          }
+        if (file.name && file.name.startsWith(sourceFilePrefix)) {
+          latestFile = file;
+          break;
         }
       }
 
       if (latestFile && latestFile.id) {
-        const dest = fs.createWriteStream(`./src/Schema/${destinationFileName}`);
+        const latestFileName = latestFile.name;
+        const remoteHash = latestFileName.split('-').pop()?.replace('.ts', '');
+
+        if (localHash === remoteHash) {
+          console.log(`Local file hash (${localHash}) is already the latest. Skipping download.`);
+          return;
+        }
+
+        const dest = fs.createWriteStream(destinationFilePath);
 
         await drive.files.get(
           { fileId: latestFile.id, alt: 'media' },
@@ -67,7 +63,7 @@ async function fetchSwagger() {
               res.data
                 .on('end', () => {
                   console.log('File downloaded successfully.');
-                  updateEnvFile(latestVersion);
+                  updateEnvFile(remoteHash);
                 })
                 .on('error', (err) => {
                   console.error('Error downloading file:', err);
@@ -79,7 +75,7 @@ async function fetchSwagger() {
           }
         );
       } else {
-        console.log(`No newer version of ${sourceFilePrefix} found.`);
+        console.log(`No file with the prefix ${sourceFilePrefix} found.`);
       }
     } else {
       console.log('No files found in the specified folder.');
@@ -89,20 +85,25 @@ async function fetchSwagger() {
   }
 }
 
-function updateEnvFile(newVersion: string) {
+function updateEnvFile(newHash: string | undefined) {
+  if (!newHash) {
+    console.error('No new hash to update.');
+    return;
+  }
+
   const envPath = '.env.local';
   let envContent = fs.readFileSync(envPath, 'utf-8');
-  const versionLinePattern = /^VERSION_NUMBER = .*/m;
-  const newVersionLine = `VERSION_NUMBER = ${newVersion}`;
+  const hashLinePattern = /^HASH_STRING = .*/m;
+  const newHashLine = `HASH_STRING = ${newHash}`;
 
-  if (versionLinePattern.test(envContent)) {
-    envContent = envContent.replace(versionLinePattern, newVersionLine);
+  if (hashLinePattern.test(envContent)) {
+    envContent = envContent.replace(hashLinePattern, newHashLine);
   } else {
-    envContent += `\n${newVersionLine}`;
+    envContent += `\n${newHashLine}`;
   }
 
   fs.writeFileSync(envPath, envContent, 'utf-8');
-  console.log('Updated .env.local with new version number:', newVersion);
+  console.log('Updated .env.local with new hash number:', newHash);
 }
 
 fetchSwagger();
