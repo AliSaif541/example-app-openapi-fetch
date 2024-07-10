@@ -13,7 +13,7 @@ async function fetchSwagger() {
   const branchName = process.env['BRANCH_NAME'];
   const localHash = process.env['HASH_STRING'];
   const sourceFilePrefix = `schema-${branchName}`;
-  const destinationFilePath = 'src/Schema/schema.ts';
+  const destinationFilePath = 'src/Schema/schema.json';
 
   const auth = new google.auth.GoogleAuth({
     keyFile: './credentials.json',
@@ -42,7 +42,7 @@ async function fetchSwagger() {
 
       if (latestFile && latestFile.id) {
         const latestFileName = latestFile.name;
-        const remoteHash = latestFileName.split('-').pop()?.replace('.ts', '');
+        const remoteHash = latestFileName.split('-').pop()?.replace('.json', '');
 
         if (localHash === remoteHash) {
           console.log(`Local file hash (${localHash}) is already the latest. Skipping download.`);

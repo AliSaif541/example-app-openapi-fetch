@@ -10,7 +10,7 @@ const getAccessToken = async (): Promise<{ accessToken: string | null }> => {
 const myInterceptor: Middleware = {
     async onRequest({ request, schemaPath }) {
         if (schemaPath === "/petsapp/pet/single") {
-            return undefined;
+            return;
         }
 
         if (!accessToken) {
