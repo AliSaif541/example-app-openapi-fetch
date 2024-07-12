@@ -1,5 +1,5 @@
-import { GoogleDriveService } from './services/googleDriveService';
-import { SchemaFetch } from './processes/schemaFetch';
+import { GoogleDriveService } from './services/googleDriveService.ts';
+import { SchemaFetch } from './processes/schemaFetch.ts';
 
 async function implementingFetch() {
   const storageService = new GoogleDriveService();

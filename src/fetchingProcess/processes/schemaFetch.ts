@@ -1,5 +1,5 @@
-import { FileFetchProcess } from './fetchProcess';
-import { StorageService } from '../services/storageService';
+import { FileFetchProcess } from './fetchProcess.ts';
+import { StorageService } from '../services/storageService.ts';
 import dotenv from 'dotenv';
 import fs from 'fs';
 

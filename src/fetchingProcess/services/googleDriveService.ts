@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import fs from 'fs';
-import { StorageService } from './storageService';
+import { StorageService } from './storageService.ts';
 
 export class GoogleDriveService implements StorageService {
   private drive;
@@ -51,7 +51,7 @@ export class GoogleDriveService implements StorageService {
         .pipe(writableStream)
         .on('finish', () => resolve())
         .on('error', (err) => {
-          writableStream.destroy();
+          writableStream.end();
           reject(err);
         });
     });
