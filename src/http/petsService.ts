@@ -57,7 +57,7 @@ export const getAPet = async (): Promise<IPet> => {
         const { data, error } = await client.GET("/petsapp/pet/single", {
             params: {
                 query: {
-                    name: "vf"
+                    name: "Ali"
                 }
             }
         });

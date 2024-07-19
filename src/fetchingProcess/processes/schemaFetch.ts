@@ -18,8 +18,8 @@ export class SchemaFetch extends FileFetchProcess {
 
     const envPath = '.env.local';
     let envContent = fs.readFileSync(envPath, 'utf-8');
-    const hashLinePattern = /^HASH_STRING = .*/m;
-    const newHashLine = `HASH_STRING = ${newHash}`;
+    const hashLinePattern = /^CHECKSUM_STRING = .*/m;
+    const newHashLine = `CHECKSUM_STRING = ${newHash}`;
 
     if (hashLinePattern.test(envContent)) {
       envContent = envContent.replace(hashLinePattern, newHashLine);
@@ -33,7 +33,7 @@ export class SchemaFetch extends FileFetchProcess {
 
   async fetchFile(): Promise<void> {
     const branchName = process.env['BRANCH_NAME'];
-    const localHash = process.env['HASH_STRING'];
+    const localHash = process.env['CHECKSUM_STRING'];
     const sourceFilePrefix = `schema-${branchName}`;
     const destinationFilePath = 'src/Schema/schema.json';
 

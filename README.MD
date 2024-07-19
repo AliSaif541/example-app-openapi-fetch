@@ -54,12 +54,12 @@ When multiple developers are working on different branches, it is important to f
 2. **Update Local Schema**: Save the fetched schema locally for use during the development process.
 
 ## Schema Hashing
-Fetching and uploading the schema file every time code is committed or built can create unnecessary overhead. To optimize this process, we attach a hash to each schema file name and then compare hashes to ensure that the schema is only fetched or uploaded when there are actual changes, reducing redundant operations.
+Fetching and uploading the schema file every time code is committed or built can create unnecessary overhead. To optimize this process, we attach the md5 checksum of each file to its name and then compare the checksums to ensure that the schema is only fetched or uploaded when there are actual changes, reducing redundant operations.
 
 ### Step-by-Step Process
 1. **Fetch Remote Hash**: Fetch the schema file name from Google Drive and extract the hash from the name.
-2. **Compare Hashes**: Compare the local hash with the remote hash.
-3. **Fetch Schema**: Fetch the schema only if the hashes are different.
+2. **Compare Checksums**: Compare the local md5 checksum with the remote md5 checksum.
+3. **Fetch Schema**: Fetch the schema only if the checksums are different.
 
 ## Interceptors
 Interceptors allow you to manipulate requests and responses globally, which is useful for adding authentication tokens, logging, error handling, etc. 
